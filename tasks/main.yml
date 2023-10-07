@@ -1,0 +1,14 @@
+- ansible.builtin.import_role:
+    name: compose_hull
+  vars:
+    service_defaults:
+      directory: "{{ docker_dir }}/vaultwarden"
+      name: vaultwarden
+      version: latest
+      websocket_enabled: true
+      port: 80
+      traefik: true
+      external: true
+      watchtower: true
+      autoheal: true
+      skip_network_definition: false

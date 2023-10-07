@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  vaultwarden:
+    image: "vaultwarden/server:{{ service_cfg.version }}"
+    container_name: vaultwarden
+    restart: unless-stopped
+    volumes:
+      - "{{ service_cfg.directory }}:/data:rw"
+    environment:
+      - "ADMIN_TOKEN={{ service_cfg.admin_token }}"
+      - "WEBSOCKET_ENABLED={{ service_cfg.websocket_enabled }}"
+    labels:
+      << : *base_labels
+{#      traefik.http.routers.{{ service_cfg.name }}_web.middlewares: "secHeaders@file"#}
+      traefik.http.middlewares.{{ service_cfg.name }}_redirect-https.redirectScheme.scheme: "https"
+      traefik.http.middlewares.{{ service_cfg.name }}_redirect-https.redirectScheme.permanent: true
+      traefik.http.routers.{{ service_cfg.name }}_web-http.rule: "Host(`{{ service_cfg.domain }}`)"
+      traefik.http.routers.{{ service_cfg.name }}_web-http.entrypoints: "web"
+      traefik.http.routers.{{ service_cfg.name }}_web-http.middlewares: "{{ service_cfg.name }}_redirect-https"
+      traefik.http.routers.{{ service_cfg.name }}_admin.rule: "Host(`{{ service_cfg.domain }}`) && PathPrefix(`/admin`)"
+      traefik.http.routers.{{ service_cfg.name }}_admin.entrypoints: "web-secure"
+      traefik.http.routers.{{ service_cfg.name }}_admin.tls: true
+      traefik.http.routers.{{ service_cfg.name }}_admin.service: "{{ service_cfg.name }}_admin-panel"
+      traefik.http.services.{{ service_cfg.name }}_admin-panel.loadbalancer.server.port: 80
+      traefik.http.routers.{{ service_cfg.name }}_admin.tls.certresolver: "default"
+      traefik.http.middlewares.{{ service_cfg.name }}_admin-auth.basicauth.users: "{{ service_cfg.http_basic_users }}"
+      traefik.http.routers.{{ service_cfg.name }}_admin.middlewares: "{{ service_cfg.name }}_admin-auth"
+{% if service_cfg.websocket_enabled == true %}
+      traefik.http.routers.{{ service_cfg.name }}_websocket-https.rule: "Host(`{{ service_cfg.domain }}`) && Path(`/notifications/hub`)"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-https.entrypoints: "web-secure"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-https.tls: true
+      traefik.http.routers.{{ service_cfg.name }}_websocket-https.service: "{{ service_cfg.name }}_websocket"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-http.rule: "Host(`{{ service_cfg.domain }}`) && Path(`/notifications/hub`)"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-http.entrypoints: "web"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-http.middlewares: "{{ service_cfg.name }}_redirect-https"
+      traefik.http.routers.{{ service_cfg.name }}_websocket-http.service: "{{ service_cfg.name }}_websocket"
+      traefik.http.services.{{ service_cfg.name }}_websocket.loadbalancer.server.port: 3012
+{% endif %}
+    networks: *base_networks
