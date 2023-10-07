@@ -6,7 +6,7 @@ Telerec't submodule for Vaultwarden [1].
 Add the submodule to your Ansible setup:
 
 ```shell
-git submodule add  roles/vaultwarden
+git submodule add https://github.com/ct-Open-Source/telerec-t-vaultwarden.git roles/vaultwarden
 ```
 
 Then set an admin password. It should be rather long and hard to guess. A long random string is suitable and can easily
