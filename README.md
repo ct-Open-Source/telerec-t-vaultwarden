@@ -1,2 +1,2 @@
 # telerec-t-vaultwarden
-Telerec't submodule for Valutwarden
+Telerec't submodule for Vaultwarden
