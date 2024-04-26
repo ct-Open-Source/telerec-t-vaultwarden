@@ -22,7 +22,7 @@ services:
       traefik.http.routers.{{ service_cfg.name }}_admin.entrypoints: "web-secure"
       traefik.http.routers.{{ service_cfg.name }}_admin.tls: true
       traefik.http.routers.{{ service_cfg.name }}_admin.service: "{{ service_cfg.name }}_admin-panel"
-      traefik.http.services.{{ service_cfg.name }}_admin-panel.loadbalancer.server.port: 80
+      traefik.http.services.{{ service_cfg.name }}_admin-panel.loadbalancer.server.port: "{{ service_cfg.port }}"
       traefik.http.routers.{{ service_cfg.name }}_admin.tls.certresolver: "default"
       traefik.http.middlewares.{{ service_cfg.name }}_admin-auth.basicauth.users: "{{ service_cfg.http_basic_users }}"
       traefik.http.routers.{{ service_cfg.name }}_admin.middlewares: "{{ service_cfg.name }}_admin-auth"
